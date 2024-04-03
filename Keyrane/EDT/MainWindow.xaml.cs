@@ -18,15 +18,16 @@ namespace EDT_TSE_2
         {
             DataContext = this;
             InitializeComponent();
-            edt_manager = new EDT_Manager(grid2);
             date_manager = new Date_Manager(ListeSemaines);
+            edt_manager = new EDT_Manager(grid2, date_manager.current_week_number);
+            Semaine_Correspondance.Text = date_manager.Current_Day.Date.ToString();
 
             //SelectWeek.ItemsSource = date_manager.Get_Window_Of_Week(date_manager.week_number); 
         }
 
 
         private int _joursSemaine;
-        public int joursSemaine { get { return _joursSemaine; } set {  _joursSemaine = value; } }
+        public int joursSemaine { get { return _joursSemaine; } set { _joursSemaine = value; } }
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -37,14 +38,17 @@ namespace EDT_TSE_2
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            
+
         }
 
         private void ListeSemaines_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            int week_selected =  int.Parse(e.AddedItems[0].ToString());
+            int week_selected = int.Parse(e.AddedItems[0].ToString());
             date_manager.Update_Date(week_selected, ListeSemaines);
+            edt_manager.peupler_edt(week_selected, grid2);
             OnPropertyChanged();
         }
+
+
     }
 }
