@@ -1,0 +1,10 @@
+﻿<Window x:Class="moodle2.PagecontentWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cef="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+        Title="PagecontentWindow" Height="450" Width="800">
+
+    <Grid x:Name="grid">
+        <cef:ChromiumWebBrowser x:Name="chromeBrowser"/>
+    </Grid>
+</Window>
