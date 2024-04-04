@@ -1,24 +1,120 @@
 ﻿<Window x:Class="moodle2.DeuxiemeWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="DeuxiemeWindow" Height="450" Width="800">
+        Title="Notes et Cours" Height="450" Width="1200">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <!-- Pour la colonne des cours -->
+            <ColumnDefinition Width="*"/>
+            <!-- Pour la colonne des notes -->
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height ="2*"/>
+            <RowDefinition Height ="3*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0">
-
+        <!-- Colonne des cours -->
+        <StackPanel Grid.Column="1" Grid.Row="1"  x:Name="CourseStackPanel">
             <TextBlock Text="Liste des cours" FontWeight="Bold" FontSize="16" Margin="5"/>
-
+            <!-- Insérez votre contenu des cours ici -->
         </StackPanel>
 
-        <ScrollViewer Grid.Row="1">
-            <StackPanel x:Name="CourseStackPanel">
+        <!-- Colonne des notes -->
+        <ListView Grid.Column="0"  Grid.Row="1"  x:Name="listView">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Module" DisplayMemberBinding="{Binding Module}" Width="100"/>
+                    <GridViewColumn Header="Min" DisplayMemberBinding="{Binding Min}" Width="100"/>
+                    <GridViewColumn Header="Max" DisplayMemberBinding="{Binding Max}" Width="100"/>
+                    <GridViewColumn Header="Moy" DisplayMemberBinding="{Binding Moy}" Width="100"/>
+                    <GridViewColumn Header="Note" DisplayMemberBinding="{Binding Note}" Width="100"/>
+                    <GridViewColumn Header="Coefficient" DisplayMemberBinding="{Binding Coefficient}" Width="100"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <!-- Colonne Agenda -->
+        <Grid Name="EDT_Complet" Grid.ColumnSpan="2" >
 
+            <Grid.ColumnDefinitions>
 
+                <ColumnDefinition Width="3*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="4*" />
+            </Grid.RowDefinitions>
+            <StackPanel   HorizontalAlignment="Center" VerticalAlignment="Center"  >
+                <ComboBox  Height="46" Width="71" IsEditable="True" IsReadOnly="True" Name="ListeSemaines" SelectionChanged="ListeSemaines_SelectionChanged" >
+                    <ComboBox.ItemTemplate   >
+                        <DataTemplate >
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock  Name="ListeSemaines_Items" Text="{Binding}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
             </StackPanel>
-        </ScrollViewer>
+            <ListView   Grid.Row="1"  HorizontalAlignment="Left" VerticalAlignment="Center"  >
+                <TextBlock TextWrapping="Wrap" Text="Emploi du temps de Keyrane Ndjock"/>
+                <TextBlock TextWrapping="Wrap" Name="Semaine_Correspondance"/>
+            </ListView>
+            <Grid Grid.Row="2" ShowGridLines="true" Name="grid2" >
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Lundi" Grid.ColumnSpan="2"  />
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Mardi" Grid.ColumnSpan="2" />
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Mercredi" Grid.ColumnSpan="2"  />
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="Jeudi" Grid.ColumnSpan="2"/>
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="Vendredi" Grid.ColumnSpan="2"  />
+
+
+            </Grid>
+
+        </Grid>
+
     </Grid>
 </Window>
+
