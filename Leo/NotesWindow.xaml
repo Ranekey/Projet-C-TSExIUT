@@ -11,6 +11,7 @@
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Module" DisplayMemberBinding="{Binding Module}" Width="150"/>
+                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Width="150"/>
                     <GridViewColumn Header="Min" DisplayMemberBinding="{Binding Min}" Width="150"/>
                     <GridViewColumn Header="Max" DisplayMemberBinding="{Binding Max}" Width="150"/>
                     <GridViewColumn Header="Moy" DisplayMemberBinding="{Binding Moy}" Width="150"/>

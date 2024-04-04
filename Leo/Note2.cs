@@ -9,6 +9,7 @@ namespace Projet_IUTxTSE
     public class Note2
     {
         public string Module { get; set; }
+        public string Name { get; set; }
         public string Min {  get; set; }
         public string Max { get; set; }
         public string Moy { get; set; }

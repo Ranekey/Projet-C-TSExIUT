@@ -1,0 +1,10 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+    {
+      "taskLabel": "t\u00E2che-Projet IUTxTSE",
+      "appliesTo": "Leo/Projet IUTxTSE.csproj",
+      "type": "msbuild"
+    }
+  ]
+}

@@ -22,12 +22,17 @@ using System.Text.RegularExpressions;
 using System.Reflection.Metadata;
 using OpenQA.Selenium.Support.UI;
 using static System.Net.Mime.MediaTypeNames;
+using System.ComponentModel;
 
 namespace Projet_IUTxTSE
 {
     public partial class MainWindow : Window
     {
+        //déclaration du driver
         private IWebDriver driver;
+
+        // Déclaration de la variable globale de liste de notes
+        private List<Note2> notes = new List<Note2>();
         public MainWindow()
         {
             InitializeComponent();
@@ -55,7 +60,7 @@ namespace Projet_IUTxTSE
             }
         }
 
-        private async void Button_Click_IUT(object sender, RoutedEventArgs e)
+        public async void Button_Click_IUT(object sender, RoutedEventArgs e)
         {
             string username = TextBox_IUT_username.Text;
             string password = PasswordBox_IUT.Password;
@@ -70,8 +75,7 @@ namespace Projet_IUTxTSE
 
                 string htmlContent = driver.PageSource;
 
-                List<Note2> notes = ExtractNotesIUTFromHtml(htmlContent); // Extraire les notes du document HTML
-                ShowNotesWindow(notes); // Afficher les notes dans une nouvelle fenêtre
+                notes.AddRange(ExtractNotesIUTFromHtml(htmlContent)); // Extraire les notes du document HTML
             }
 
         }
@@ -90,8 +94,7 @@ namespace Projet_IUTxTSE
 
                 string htmlContent = driver.PageSource;
 
-                List<Note2> notes = ExtractNotesTSEFromHtml(htmlContent); // Extraire les notes du document HTML
-                ShowNotesWindow(notes); // Afficher les notes dans une nouvelle fenêtre
+                notes.AddRange(ExtractNotesTSEFromHtml(htmlContent)); // Extraire les notes du document HTML
             }
         }
 
@@ -206,24 +209,55 @@ namespace Projet_IUTxTSE
             doc.LoadHtml(html);
 
             // Sélectionner tous les éléments de tableau (balise <tr>)
-            var rows = doc.DocumentNode.SelectNodes("//tr[@class='evaluation']");
+            var rows = doc.DocumentNode.SelectNodes("//tr");
+
+            //initialiser module et ue compteur
+            string currentModule = null;
+            int ueCount = 0;
 
             // Parcourir chaque ligne
             foreach (var row in rows)
             {
-                // Sélectionner toutes les cellules dans la ligne
-                var cells = row.SelectNodes("td");
+                // Check if the row has class 'ue'
+                if (row.GetClasses().Contains("ue"))
+                {
+                    // If it's a module row, extract module data
+                    ueCount++;
+                }
+                // Check if the row has class 'module'
+                else if (row.GetClasses().Contains("module"))
+                {
+                    // If it's a module row, extract module data
+                    currentModule = row.InnerText.Trim();
+                }
 
-                // Extraire les données pertinentes
-                string module = cells[1].InnerText.Trim();
-                string min = cells[2].InnerText.Trim();
-                string max = cells[3].InnerText.Trim();
-                string moy = cells[4].InnerText.Trim();
-                string note = cells[5].InnerText.Trim();
-                string coef = cells[6].InnerText.Trim();
+                // Check if the row has class 'evaluation'
+                else if (ueCount == 1 && row.GetClasses().Contains("evaluation"))
+                {
+                    // Initialize variables to store evaluation data
+                    string name = null;
+                    string min = null;
+                    string max = null;
+                    string moy = null;
+                    string note = null;
+                    string coef = null;
 
-                // Ajouter la note à la liste
-                notes.Add(new Note2 { Module = module, Min = min, Max = max, Moy = moy, Note = note, Coefficient = coef });
+                    // Sélectionner toutes les cellules dans la ligne
+                    var cells = row.SelectNodes("td");
+                    if (cells != null)
+                    {
+                        // Extraire les données pertinentes
+                        name = cells[1].InnerText.Trim();
+                        min = cells[2].InnerText.Trim();
+                        max = cells[3].InnerText.Trim();
+                        moy = cells[4].InnerText.Trim();
+                        note = cells[5].InnerText.Trim();
+                        coef = cells[6].InnerText.Trim();
+                    }
+                    // Ajouter la note à la liste
+                    notes.Add(new Note2 { Module = currentModule, Name = name, Min = min, Max = max, Moy = moy, Note = note, Coefficient = coef });
+
+                }
             }
             return notes;
         }
@@ -237,47 +271,34 @@ namespace Projet_IUTxTSE
             doc.LoadHtml(html);
 
             //Selectionner les éléments de tableau contenant les données des matières
-            var tableRows = doc.DocumentNode.SelectNodes("//table[@id='overview-grade']//tr[position()>0]");
+            var tableRows = doc.DocumentNode.SelectNodes("//tr");
 
-            if (tableRows != null)
+
+            // Parcourir chaque ligne du tableau
+            foreach (var row in tableRows)
             {
-                // Parcourir chaque ligne du tableau
-                foreach (var row in tableRows)
+                var cells = row.SelectNodes("td");
+                // Vérifier si la ligne contient une note (ignorer les lignes vides)
+                if (cells != null && cells.Count == 3 && cells[1].InnerText.Trim() != "-" && row.Attributes["class"].Value != "emptyrow")
                 {
-                    if (row.Attributes["class"] != null && row.Attributes["class"].Value == "emptyrow")
-                    {
-                        // La ligne est vide, passer à la suivante
-                        continue;
-                    }
+                    // Récupérer le lien et la note
+                    var moduleLink = cells[0].SelectSingleNode("a").Attributes["href"].Value.Replace("amp;","");
+                    var moduleName = cells[0].InnerText.Trim();
+                    
+                    //acceder au lien associé
+                    driver.Navigate().GoToUrl(moduleLink);
 
-                    var cells = row.SelectNodes("td");
-                    if (cells != null && cells.Count >= 3)
-                    {
-                        // Récupérer le nom de la matière (1ère colonne) et lien associé
-                        string module = cells[0].InnerText.Trim();
-                        string link = cells[0].SelectSingleNode(".//a").GetAttributeValue("href", "").Replace("&amp;", "&");
+                    string htmlNoteDetails = driver.PageSource;
 
-                        // Récupérer la note (2ème colonne)
-                        string noteTexte = cells[1].InnerText.Trim();
-
-                        if (float.TryParse(noteTexte,out float note))
-                        {
-                            //acceder au lien associé
-                            driver.Navigate().GoToUrl(link);
-
-                            string htmlNoteDetails = driver.PageSource;
-
-                            //extraire les détails des notes
-                            notes.AddRange(ExtractNoteDetailsFromHtml(htmlNoteDetails));
-                        }
-                    }
+                    //extraire les détails des notes
+                    notes.AddRange(ExtractNoteDetailsFromHtml(htmlNoteDetails,moduleName));
                 }
             }
 
             return notes;
         }
 
-        private List<Note2> ExtractNoteDetailsFromHtml(string html)
+        private List<Note2> ExtractNoteDetailsFromHtml(string html, string module)
         {
             List<Note2> noteDetails = new List<Note2>();
 
@@ -286,31 +307,25 @@ namespace Projet_IUTxTSE
             doc.LoadHtml(html);
 
             // Sélectionner les éléments de tableau contenant les données des notes en détail
-            var tableRows = doc.DocumentNode.SelectNodes("//tr[contains(@class, 'cat_')]");
+            var tableRows = doc.DocumentNode.SelectNodes("//tbody//tr");
 
-            if (tableRows != null)
+            // Parcourir chaque ligne du tableau
+            foreach (var row in tableRows)
             {
-                // Parcourir chaque ligne du tableau
-                foreach (var row in tableRows)
+                var cells = row.SelectNodes("td | th");
+                if (cells != null && cells.Count == 7 && cells[2].InnerText.Trim() != "-")
                 {
-                    var cells = row.SelectNodes("td | th");
-                    if (cells != null && cells.Count >= 7)
-                    {
-                        string devoir = cells[0].InnerText.Trim();
-                        string coefficientText = cells[1].InnerText.Trim();
-                        string noteText = cells[2].InnerText.Trim();
-
-                        if (float.TryParse(noteText,out float note))
-                        {
-                            noteDetails.Add(new Note2 { Name = devoir, Coefficient = coefficientText, Note = noteText });
-                        }
-                    }
+                    string nomDevoir = cells[0].InnerText.Trim();
+                    string coefficientText = cells[1].InnerText.Trim();
+                    string noteText = cells[2].InnerText.Trim();
+                    
+                    //ajouter la note
+                    noteDetails.Add(new Note2 { Module = module, Name = nomDevoir, Coefficient = coefficientText, Note = noteText });
                 }
             }
             return noteDetails;
         }
 
-        
         private void ShowNotesWindow(List<Note2> notes)
         {
             NotesWindow notesWindow = new NotesWindow(notes);
@@ -432,17 +447,22 @@ namespace Projet_IUTxTSE
                 // Cliquer sur le bouton de recherche
                 searchButton.Click();
 
-                Thread.Sleep(5000);
+                Thread.Sleep(10000);
 
                 // Sélectionner le deuxième bouton en utilisant un XPath spécifique
-                IWebElement secondButton = driver.FindElement(By.XPath("//button[@aria-describedby='x-auto-1']"));
+                IWebElement secondButton = driver.FindElement(By.Id("x-auto-107"));
                 
                 // Cliquer sur le deuxième bouton
                 secondButton.Click();
 
                 
                 // Sélectionner le bouton "Générer URL" par son texte
-                IWebElement generateUrlButton = driver.FindElement(By.XPath("//button[text()='Générer URL']"));
+                //IWebElement generateUrlButton = driver.FindElement(By.XPath("//button[text()='Générer URL']"));
+
+
+                // Sélectionner le bouton "Générer URL" par son texte
+                IWebElement generateUrlButton = driver.FindElement(By.Id("x-auto-346"));
+                
 
                 generateUrlButton.Click();
 
@@ -474,7 +494,10 @@ namespace Projet_IUTxTSE
             return "erreur";
         }
 
-        
+        private async void Button_Click(object sender, RoutedEventArgs e)
+        {
+            ShowNotesWindow(notes);
+        }
     }
 
 }

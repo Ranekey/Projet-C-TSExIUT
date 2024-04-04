@@ -14,6 +14,7 @@
         <PasswordBox x:Name="PasswordBox_TSE" HorizontalAlignment="Left" Margin="562,247,0,0" VerticalAlignment="Top" Width="120" Height="18"/>
         <TextBox x:Name="TextBox_TSE_username" HorizontalAlignment="Left" Margin="562,160,0,0" VerticalAlignment="Top" Width="120" Height="18"/>
         <Button Content="Générer ICS" HorizontalAlignment="Left" Margin="682,79,0,0" VerticalAlignment="Top" Click="Button_ClickAsync"/>
+        <Button Content="Extraire Notes" HorizontalAlignment="Center" Margin="0,341,0,0" VerticalAlignment="Top" Click="Button_Click"/>
 
 
     </Grid>
